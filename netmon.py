@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import sys
 import re
+import datetime
 import time
 import csv
 import signal
@@ -8,7 +9,7 @@ import threading
 import subprocess
 
 # 统计间隔
-STAT_DURATION = 10
+STAT_DURATION = 1
 
 PORTS_RATE = dict()
 
@@ -24,7 +25,7 @@ def save_csv():
                 # 构造csv表头
                 header.append('Port')
                 for i in range(0, len(PORTS_RATE[key])):
-                    header.append(str((i + 1) * 10) + 's')
+                    header.append(str(i) + 's')
                 f_csv.writerow(header)
             # 构造数据
             row = []
@@ -47,7 +48,7 @@ signal.signal(signal.SIGTERM, my_handler)
 
 def make_command(ports):
     port_str = 'or'.join(ports)
-    return 'tcpdump -i any -nn -t -q ' + port_str + ''
+    return 'tcpdump -i any tcp -nn -t -q ' + port_str + ''
 
 def parse_line(line):
     ret = re.findall(line_regex, line)
@@ -120,4 +121,3 @@ if __name__ == '__main__':
                     ports_stat[src] = ports_stat[src] + length
                 elif dst in ports_stat:
                     ports_stat[dst] = ports_stat[dst] + length
-    
